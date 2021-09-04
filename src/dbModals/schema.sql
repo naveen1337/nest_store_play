@@ -1,0 +1,2 @@
+create table `admin` (`admin_id` integer not null primary key autoincrement, `name` varchar(255), `email` varchar(255), `passwoord` varchar(255), `created_at` datetime);
+create unique index `admin_email_unique` on `admin` (`email`)
