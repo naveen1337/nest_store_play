@@ -7,10 +7,16 @@ import db from "./config/db"
 import {createAdminTabe} from "./dbModals/schema"
 import query from "./dbModals"
 
-// let dbQuery = new query('Admin','admin')
-// console.log(dbQuery.insert({name:"1"}))
 
-// console.log(createAdminTabe())
+db.on('open', async () => {
+  console.log('Db Connection Opened');
+});
+
+(async ()=>{
+  // const createAdmin = await createAdminTabe()
+  // console.log(createAdmin)
+})()
+
 
 @Module({
   imports: [AdminModule, ProductsModule],

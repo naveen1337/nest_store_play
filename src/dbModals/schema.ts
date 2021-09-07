@@ -2,6 +2,10 @@ import knex from 'knex';
 
 let knexBuilder = knex({
 	client: 'sqlite3',
+	connection: {
+    filename: "../nest_play.sqlite3",
+  	},
+	useNullAsDefault: true
 });
 
 export const createAdminTabe = async () => {
@@ -12,10 +16,7 @@ export const createAdminTabe = async () => {
 				table.string('name').notNullable();
 				table.string('email').unique().notNullable();
 				table.string('password').notNullable();
-				table
-					.datetime('created_at', { precision: 6 })
-					.defaultTo(knexBuilder.fn.now(6))
-					.notNullable();
+				table.string('created_at').notNullable();
 			})
 			.toString();
 		return query;
