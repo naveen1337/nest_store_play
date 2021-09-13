@@ -13,22 +13,22 @@ export class AdminController {
   }
 
   @Get()
-  findAll() {
-    return this.adminService.findAll();
+  getAll() {
+    return this.adminService.getAll();
   }
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.adminService.findOne(+id);
+    return this.adminService.findOne(id);
   }
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateAdminDto: UpdateAdminDto) {
-    return this.adminService.update(+id, updateAdminDto);
+    return this.adminService.update(id, updateAdminDto);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.adminService.remove(+id);
+    return this.adminService.remove(id);
   }
 }

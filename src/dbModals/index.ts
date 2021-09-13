@@ -1,28 +1,91 @@
-import knexBuilder from "./schema"
-import db from "../config/db"
-class Query  {
-    public identification :string
-    public tableName :string
+import knexBuilder from './schema';
+import db from '../config/db';
 
-    constructor(identification: string, tableName: string) {
-        this.identification = identification
-        this.tableName = tableName
-    }
-    async create(payload: any): Promise<any> {
-        return payload
-    }
-    async insert(payload: any): Promise<any> {
-        try{
-            let query = await knexBuilder(this.tableName).insert(payload).toString()
-            let dbResponse = await db.run(query)
-            return dbResponse
+const log = console.log;
+
+class Query {
+  public identification: string;
+  public tableName: string;
+
+  constructor(identification: string, tableName: string) {
+    this.identification = identification;
+    this.tableName = tableName;
+  }
+  async getAll(): Promise<any> {
+    let query = await knexBuilder.select('*').from(this.tableName).toString();
+    return new Promise(async (resolve, reject) => {
+      db.all(query, (err, rows) => {
+        if (err || rows.length === 0) {
+          reject({
+            status: false,
+            message: `NO ${this.identification} Found`,
+          });
+        } else {
+          resolve({
+            status: true,
+            data: rows,
+          });
         }
-        catch(err){
-            console.log(err)
-            return false
+      });
+    });
+  }
+  async insert(payload: any): Promise<any> {
+    let query = await knexBuilder(this.tableName).insert(payload).toString();
+    return new Promise(async (resolve, reject) => {
+      db.run(query, (err) => {
+        if (err) {
+          reject({
+            status: false,
+            message: `Failed to Create ${this.identification}`,
+          });
+        } else {
+          resolve({
+            status: true,
+            mesage: `${this.identification} Created`,
+          });
         }
-        return payload
-    }
+      });
+    });
+  }
+  async getBy(key: string, value: string): Promise<any> {
+    let query = await knexBuilder(this.tableName).where(key, value).toString();
+    return new Promise(async (resolve, reject) => {
+      db.all(query, (err, rows) => {
+        if (err || rows.length === 0) {
+          reject({
+            status: false,
+            message: `Failed to Get ${this.identification}`,
+          });
+        } else {
+          resolve({
+            status: true,
+            data: rows,
+          });
+        }
+      });
+    });
+  }
+  async remove(key: string, value: string): Promise<any> {
+    let query = await knexBuilder(this.tableName)
+      .where(key, value)
+      .del()
+      .toString();
+    return new Promise(async (resolve, reject) => {
+      db.run(query, (err) => {
+        if (err) {
+          reject({
+            status: false,
+            message: `Failed to Delete ${this.identification}`,
+          });
+        } else {
+          resolve({
+            status: true,
+            message: `${this.identification} Deleted`,
+          });
+        }
+      });
+    });
+  }
 }
 
-export default Query
+export default Query;
