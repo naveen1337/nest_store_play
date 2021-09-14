@@ -46,14 +46,12 @@ export class AdminService {
     try {
       let inputObj = await sanitizeUpdateAdminInput(updateAdminDto);
       const query = new Query('Admin', 'admin');
-      let dbResponse = await query.getBy('admin_id', id);
-      console.log(dbResponse)
-      if(dbResponse.status && dbResponse?.data?.length === 1){
+      let isUserExists = await query.getBy('admin_id', id);
+      (isUserExists.status && isUserExists?.data?.length === 1) ? null : throwError(isUserExists.message)
+      
+      let updateDbResponse = await query.updateBy("admin_id",id,inputObj) 
+      return updateDbResponse.status ? updateDbResponse.message : throwError(updateDbResponse.message)
 
-      }
-      else{
-        return throwError(dbResponse.message)
-      }
     } catch (err) {
       console.log(err)
       return { message: typeof err?.message === 'string' ? err.message : 'Failed to Update' };

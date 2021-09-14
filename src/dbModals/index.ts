@@ -65,6 +65,27 @@ class Query {
       });
     });
   }
+  async updateBy(key: string, value: string, payload: any): Promise<any> {
+    let query = await knexBuilder(this.tableName)
+      .where(key, value)
+      .update(payload)
+      .toString();
+    return new Promise(async (resolve, reject) => {
+      db.run(query, (err) => {
+        if (err) {
+          reject({
+            status: false,
+            message: `Failed to Update ${this.identification}`,
+          });
+        } else {
+          resolve({
+            status: true,
+            message: `SuccessFully ${this.identification} ${value} Updated`,
+          });
+        }
+      });
+    });
+  }
   async remove(key: string, value: string): Promise<any> {
     let query = await knexBuilder(this.tableName)
       .where(key, value)
