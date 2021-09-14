@@ -1,24 +1,55 @@
 import { Injectable } from '@nestjs/common';
 import { CreateAdminDto } from './dto/create-admin.dto';
 import { UpdateAdminDto } from './dto/update-admin.dto';
+import {LoginAdminDto} from "./dto/comman.dto"
 import Query from '../dbModals';
 import { sanitizeUpdateAdminInput } from '../objCreators/adminObjCreator';
+const bcrypt = require('bcrypt');
+const util = require('util');
+var jwt = require('jsonwebtoken');
 
 @Injectable()
 export class AdminService {
+
   async create(createAdminDto) {
     try {
+      const genHash = util.promisify(bcrypt.hash);
+
       const query = new Query('Admin', 'admin');
       let obj = {
         ...createAdminDto,
       };
       obj.created_at = Date().toString();
+      obj.password = await genHash(obj.password,10)
       let dbResponse = await query.insert(obj);
       return dbResponse.status ? dbResponse.message : throwError(dbResponse.message)
     } catch (err) {
       return { message: typeof err === 'string' ? err : 'Failed to Create' };
     }
   }
+
+  async login(LoginAdminDto) {
+    try {
+      const compareHash = util.promisify(bcrypt.compare);
+      const query = new Query('Admin', 'admin');
+      const isAdminExists = await query.getBy('email',LoginAdminDto.email)
+      isAdminExists.status ? null : throwError(isAdminExists.message)
+      const passwordCheck = await compareHash(LoginAdminDto.password,isAdminExists.data[0].password)
+      if(passwordCheck){
+        // [TO-DO] Implement Refresh Token with Redis
+        const token = await jwt.sign({ id: isAdminExists.data[0].id , auth_level:"admin" }, "THIS_KEY_WILL_CHANGE");
+        return {token}
+      } 
+      else{
+        throwError("Wrong Password")
+      }
+    } catch (err) {
+      console.log(err)
+      return { message: typeof err === 'string' ? err : 'Failed to Login' };
+    }
+  }
+
+  
 
   async getAll() {
     try {
